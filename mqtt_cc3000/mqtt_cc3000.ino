@@ -42,8 +42,8 @@ const int relayPin = 6;
 void callback (char* topic, byte* payload, unsigned int length) {
    int i = 0;
 
-  //Serial.println("Message arrived:  topic: " + String(topic));
-  //Serial.println("Length: " + String(length,DEC));
+  Serial.println("Message arrived:  topic: " + String(topic));
+  Serial.println("Length: " + String(length,DEC));
   
   for(i=0; i<length; i++) { message_buff[i] = payload[i]; }
   message_buff[i] = '\0';
@@ -114,8 +114,6 @@ void loop(void) {
      if(client.connected()) {
        Serial.println(F("connected to the broker!"));
        if (mqttclient.connect(DEVICE_ID)) { 
-         mqttclient.publish("/arduino_uno/temperature", tempBuffer);
-         mqttclient.publish("/arduino_uno/humidity", humidityBuffer);
          mqttclient.subscribe("/arduino_uno/callback");
        }
      } 
