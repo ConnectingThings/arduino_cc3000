@@ -1,3 +1,3 @@
-# arduino cc3000 client
+# arduino mqtt client
 
-Arduino mqtt client for ConnectingThings platform.
+Examples based on cc3000 chip for ConnectingThings platform.
