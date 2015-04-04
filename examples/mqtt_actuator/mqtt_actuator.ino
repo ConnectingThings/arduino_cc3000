@@ -51,6 +51,13 @@ void callback (char* topic, byte* payload, unsigned int length) {
   String msgString = String(message_buff);
   Serial.println("Payload: " + msgString);    
   
+   if (msgString.equals("{\"value\":\"0\"}")) {
+     Serial.println("Relay OFF");
+     digitalWrite(relayPin, LOW);
+  } else if (msgString.equals("{\"value\":\"1\"}")) {
+     Serial.println("Relay ON");
+     digitalWrite(relayPin, HIGH);
+  }
   
 }
 cc3000_PubSubClient mqttclient(server.ip, 1883, callback, client, cc3000);
@@ -86,42 +93,20 @@ void setup(void)
 }
 
 void loop(void) {
-   
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  
-  char tempBuffer[50];
-  String temp = dtostrf(t, 5, 2, tempBuffer);
-  
-  char humidityBuffer[50];
-  String humidity = dtostrf(h, 5, 2, humidityBuffer);
-  
-  Serial.println("Humidity: "+humidity+" Temperature: "+temp); 
-  
- String humidityJson = "{\"value\": \""+humidity+"\"}";
- humidityJson.toCharArray(humidityBuffer, 50);
- 
- String temperatureJson = "{\"value\": \""+temp+"\"}";
- temperatureJson.toCharArray(tempBuffer, 50);
-    
+       
   // are we still connected?
   if (!client.connected()) {
-     Serial.println(F("trying to connect to the broker..."));
+     Serial.println(F("trying to connect to the internet..."));
      client = cc3000.connectTCP(server.ip, 1883);
      
      if(client.connected()) {
-       Serial.println(F("connected to the broker!"));
+       Serial.println(F("connected to the internet!"));
        if (mqttclient.connect(DEVICE_ID)) { 
-         mqttclient.subscribe("/arduino_uno/callback");
+          Serial.println(F("connected to the mqtt broker!"));
+          mqttclient.subscribe("/arduino_uno/relay");
        }
      } 
-  } else {
-    // yep, publish that test 
-    mqttclient.publish("/arduino_uno/temperature", tempBuffer);
-    mqttclient.publish("/arduino_uno/humidity", humidityBuffer);
-  }
+  } 
 
   mqttclient.loop();
   delay(10000);
