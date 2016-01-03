@@ -18,8 +18,8 @@
 // On an UNO, SCK = 13, MISO = 12, and MOSI = 11
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIVIDER);
 
-#define WLAN_SSID       "WiFi-Arnet-s7fr"
-#define WLAN_PASS       "6z6n2sk9rc"
+#define WLAN_SSID       "XXX-XXX-XXX"
+#define WLAN_PASS       "xxxxxxxxx"
 #define DEVICE_ID       "arduino_uno" 
 
 // Security can be WLAN_SEC_UNSEC, WLAN_SEC_WEP, WLAN_SEC_WPA or WLAN_SEC_WPA2
@@ -94,7 +94,7 @@ String messageJson = "{\"sensors\":[{\"value\":\""+temp+"\",\"tag\":\"temperatur
      } 
   } else {
     // yep, publish that test  
-    mqttclient.publish("/device/arduino_uno/key/1qaz2wsx", message_buff); 
+    mqttclient.publish("/device/arduino_uno/key/xxxxxx", message_buff); 
   }
 
   mqttclient.loop();
