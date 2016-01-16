@@ -1,4 +1,4 @@
-/* mqtt_temperature
+/* mqtt_pir
 MIT license
 written by Mariano Ravinale
 */
@@ -32,6 +32,10 @@ PubSubClient mqttclient("app.connectingthings.io", 1883, client);
 
 DHT dht(DHTPIN, DHTTYPE);
 
+int inputPin = 4;               // choose the input pin (for PIR sensor)
+int pirState = LOW;             // we start, assuming no motion detected
+int val = 0;                    // variable for reading the pin status
+
 void setup(void)
 {
  Serial.begin(115200);
@@ -51,38 +55,28 @@ void setup(void)
   Serial.println(F("Request DHCP"));
   while (!cc3000.checkDHCP()) { delay(100);}
   displayConnectionDetails();
-  
-  dht.begin(); 
+   
+  pinMode(inputPin, INPUT);     // declare sensor as input 
 }
  
 void loop(void) {
 
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
-  
-  char tempBuffer[50];
-  String temp = dtostrf(t, 5, 2, tempBuffer);
-  
-  char humidityBuffer[50];
-  String humidity = dtostrf(h, 5, 2, humidityBuffer);
- 
-  String humidityJson = "{\"value\": \""+humidity+"\",\"tag\": \"humidity\"}";
-  humidityJson.toCharArray(humidityBuffer, 50);
- 
-  String temperatureJson = "{\"value\": \""+temp+"\",\"tag\": \"temperature\"}";
-  temperatureJson.toCharArray(tempBuffer, 50);
-    
-  // are we still connected?
   if (!mqttclient.connected()) {  reconnect(); }
-      
-  Serial.println("Temperature: "+temp); 
-  mqttclient.publish("/device/arduino_uno/key/xxxxxxx",tempBuffer);
-  delay(5000);
-  Serial.println("Humidity: "+humidity); 
-  mqttclient.publish("/device/arduino_uno/key/xxxxxxx",humidityBuffer);
-    
+
+  val = digitalRead(inputPin);  // read input value
+  
+  if (val == HIGH && pirState == LOW ) {     
+    Serial.println("Motion detected!");     
+    mqttclient.publish("/device/switch/key/xxxxxxx","{\"value\": \"1\",\"tag\": \"movement\"}");
+    pirState = HIGH; 
+    delay(10*1000); //10 seconds on hold   
+  } else if (pirState == HIGH) {        
+    Serial.println("Motion ended!"); 
+    mqttclient.publish("/device/switch/key/xxxxxxx","{\"value\": \"0\",\"tag\": \"movement\"}");
+    pirState = LOW;    
+  }
+ 
   mqttclient.loop();
-  delay(5000);
 }
 
 /**************************************************************************/
@@ -107,7 +101,7 @@ void reconnect() {
  
 /**************************************************************************/
 /*!
-    @brief  Tries to read the IP address and other connection details
+    @brief  Tries to read the IP address
 */
 /**************************************************************************/
 bool displayConnectionDetails(void)
@@ -121,11 +115,7 @@ bool displayConnectionDetails(void)
   }
   else
   {
-    Serial.print(F("\nIP Addr: ")); cc3000.printIPdotsRev(ipAddress);
-    Serial.print(F("\nNetmask: ")); cc3000.printIPdotsRev(netmask);
-    Serial.print(F("\nGateway: ")); cc3000.printIPdotsRev(gateway);
-    Serial.print(F("\nDHCPsrv: ")); cc3000.printIPdotsRev(dhcpserv);
-    Serial.print(F("\nDNSserv: ")); cc3000.printIPdotsRev(dnsserv);
+    Serial.print(F("IP Address: ")); cc3000.printIPdotsRev(ipAddress); 
     Serial.println();
     return true;
   }
