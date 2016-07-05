@@ -6,7 +6,6 @@ written by Mariano Ravinale
 #include <Adafruit_CC3000.h>
 #include <ccspi.h>
 #include <SPI.h>
-#include <DHT.h>
 #include <PubSubClient.h>
  
 #define aref_voltage 3.3
@@ -21,16 +20,11 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 #define WLAN_PASS       "Password"
 #define WLAN_SECURITY   WLAN_SEC_WPA2
 
-#define DHTPIN 7     // what pin we're connected to
-#define DHTTYPE DHT11   
-
 char humidityBuffer[50];
 char tempBuffer[50];
  
 Adafruit_CC3000_Client client = Adafruit_CC3000_Client();
 PubSubClient mqttclient("app.connectingthings.io", 1883, client);
-
-DHT dht(DHTPIN, DHTTYPE);
 
 int inputPin = 4;               // choose the input pin (for PIR sensor)
 int pirState = LOW;             // we start, assuming no motion detected
