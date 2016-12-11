@@ -61,12 +61,12 @@ void loop(void) {
   
   if (val == HIGH && pirState == LOW ) {     
     Serial.println("Motion detected!");     
-    mqttclient.publish("/device/switch/key/xxxxxxx","{\"value\": \"1\",\"tag\": \"movement\"}");
+    mqttclient.publish("device/switch/key/xxxxxxx","{\"value\": \"1\",\"tag\": \"movement\"}", true);
     pirState = HIGH; 
     delay(10*1000); //10 seconds on hold   
   } else if (pirState == HIGH) {        
     Serial.println("Motion ended!"); 
-    mqttclient.publish("/device/switch/key/xxxxxxx","{\"value\": \"0\",\"tag\": \"movement\"}");
+    mqttclient.publish("device/switch/key/xxxxxxx","{\"value\": \"0\",\"tag\": \"movement\"}", true);
     pirState = LOW;    
   }
  
